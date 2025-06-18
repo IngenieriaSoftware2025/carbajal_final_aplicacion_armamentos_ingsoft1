@@ -395,13 +395,14 @@ class ActiveRecord
     }
 
     // Crear registro con validaciones y respuesta JSON automática
-    public function crearConRespuesta($validaciones = [])
+    public function crearConRespuesta($validaciones = [], $rutaAuditoria = null)
     {
+        $id_usuario_auditor = $_SESSION['id_usuario'] ?? null;
         try {
-            // Ejecutar validaciones personalizadas
             foreach ($validaciones as $validacion) {
                 $resultado = $validacion($this);
                 if ($resultado !== true) {
+                    if ($rutaAuditoria) self::registrarActividad($rutaAuditoria, $id_usuario_auditor, 0, ['error' => $resultado, 'datos' => $_POST]);
                     self::respuestaJSON(0, $resultado, null, 400);
                 }
             }
@@ -409,23 +410,27 @@ class ActiveRecord
             $resultado = $this->crear();
 
             if ($resultado['resultado']) {
+                if ($rutaAuditoria) self::registrarActividad($rutaAuditoria, $id_usuario_auditor, 1, $_POST);
                 self::respuestaJSON(1, 'Registro creado exitosamente');
             } else {
+                if ($rutaAuditoria) self::registrarActividad($rutaAuditoria, $id_usuario_auditor, 0, ['error' => 'Fallo en DB', 'datos' => $_POST]);
                 self::respuestaJSON(0, 'Error al crear el registro', null, 400);
             }
         } catch (Exception $e) {
+            if ($rutaAuditoria) self::registrarActividad($rutaAuditoria, $id_usuario_auditor, 0, ['error' => $e->getMessage()]);
             self::respuestaJSON(0, 'Error al crear: ' . $e->getMessage(), null, 500);
         }
     }
 
     // Actualizar registro con validaciones y respuesta JSON automática
-    public function actualizarConRespuesta($validaciones = [])
+    public function actualizarConRespuesta($validaciones = [], $rutaAuditoria = null)
     {
+        $id_usuario_auditor = $_SESSION['id_usuario'] ?? null;
         try {
-            // Ejecutar validaciones personalizadas
             foreach ($validaciones as $validacion) {
                 $resultado = $validacion($this);
                 if ($resultado !== true) {
+                    if ($rutaAuditoria) self::registrarActividad($rutaAuditoria, $id_usuario_auditor, 0, ['error' => $resultado, 'datos' => $_POST]);
                     self::respuestaJSON(0, $resultado, null, 400);
                 }
             }
@@ -433,28 +438,35 @@ class ActiveRecord
             $resultado = $this->actualizar();
 
             if ($resultado['resultado']) {
+                if ($rutaAuditoria) self::registrarActividad($rutaAuditoria, $id_usuario_auditor, 1, $_POST);
                 self::respuestaJSON(1, 'Registro actualizado exitosamente');
             } else {
+                if ($rutaAuditoria) self::registrarActividad($rutaAuditoria, $id_usuario_auditor, 0, ['error' => 'Fallo en DB', 'datos' => $_POST]);
                 self::respuestaJSON(0, 'Error al actualizar el registro', null, 400);
             }
         } catch (Exception $e) {
+            if ($rutaAuditoria) self::registrarActividad($rutaAuditoria, $id_usuario_auditor, 0, ['error' => $e->getMessage()]);
             self::respuestaJSON(0, 'Error al actualizar: ' . $e->getMessage(), null, 500);
         }
     }
 
     // Eliminar (cambiar situacion a 0) con respuesta JSON automática
-    public static function eliminarLogicoConRespuesta($id, $campoId = 'id')
+    public static function eliminarLogicoConRespuesta($id, $campoId = 'id', $rutaAuditoria = null)
     {
+        $id_usuario_auditor = $_SESSION['id_usuario'] ?? null;
         try {
             $query = "UPDATE " . static::$tabla . " SET situacion = 0 WHERE $campoId = " . self::$db->quote($id);
             $resultado = self::$db->exec($query);
 
             if ($resultado) {
+                if ($rutaAuditoria) self::registrarActividad($rutaAuditoria, $id_usuario_auditor, 1, ['id_eliminado' => $id]);
                 self::respuestaJSON(1, 'Registro eliminado exitosamente');
             } else {
+                if ($rutaAuditoria) self::registrarActividad($rutaAuditoria, $id_usuario_auditor, 0, ['error' => 'Fallo en DB', 'id_eliminado' => $id]);
                 self::respuestaJSON(0, 'Error al eliminar el registro', null, 400);
             }
         } catch (Exception $e) {
+            if ($rutaAuditoria) self::registrarActividad($rutaAuditoria, $id_usuario_auditor, 0, ['error' => $e->getMessage()]);
             self::respuestaJSON(0, 'Error al eliminar: ' . $e->getMessage(), null, 500);
         }
     }
@@ -710,7 +722,7 @@ class ActiveRecord
 
             if ($id_ruta === null) {
                 error_log("Auditoría Omitida: La ruta '{$rutaString}' no está registrada para auditoría en la tabla dgcm_rutas.");
-                return; // Salir silenciosamente
+                return;
             }
 
             $query = "INSERT INTO dgcm_historial_act (id_ruta, id_usuario, status, ejecucion, fecha_creacion) 
@@ -725,6 +737,24 @@ class ActiveRecord
             $stmt->execute();
         } catch (\Exception $e) {
             error_log('Error al registrar actividad de auditoría: ' . $e->getMessage());
+        }
+    }
+
+    public static function registrarHistorial($usuario, $ruta, $descripcion, $estado)
+    {
+        try {
+            $query = "INSERT INTO dgcm_historial_act (usuario, ruta, fecha_creacion, ejecucion, estado, situacion)
+                    VALUES (:usuario, :ruta, CURRENT YEAR TO MINUTE, :descripcion, :estado, 1)";
+
+            $stmt = self::$db->prepare($query);
+            $stmt->bindValue(':usuario', $usuario, \PDO::PARAM_STR);
+            $stmt->bindValue(':ruta', $ruta, \PDO::PARAM_STR);
+            $stmt->bindValue(':descripcion', $descripcion, \PDO::PARAM_STR);
+            $stmt->bindValue(':estado', $estado, \PDO::PARAM_INT);
+            $stmt->execute();
+        } catch (\Exception $e) {
+            // Si falla, solo lo registra en el log de errores para no detener la app.
+            error_log('Error al registrar historial: ' . $e->getMessage());
         }
     }
 }

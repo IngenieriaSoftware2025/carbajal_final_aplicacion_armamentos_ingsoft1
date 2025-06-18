@@ -18,7 +18,7 @@ const tablaHistorial = new DataTable('#TableHistorial', {
 });
 
 const obtenerHistorial = async () => {
-    const url = "/carbajal_final_aplicacion_armamentos_ingsoft1/busca_historial";
+    const url = "/carbajal_final_aplicacion_armamentos_ingsoft1/busca_historial_ruta";
     const respuesta = await fetch(url);
     const datos = await respuesta.json();
 

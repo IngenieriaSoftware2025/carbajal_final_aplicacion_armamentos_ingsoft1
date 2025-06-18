@@ -31,17 +31,17 @@ class PermisoController extends ActiveRecord
 
     public static function guardarPermiso()
     {
-        // if (session_status() === PHP_SESSION_NONE) {
-        //     session_start();
-        // }
-        // if (!isset($_SESSION['login']) || $_SESSION['login'] !== true) {
-        //     self::respuestaJSON(0, 'Acceso no autorizado. Debes iniciar sesión.', null, 401);
-        //     return;
-        // }
-        // if (!LoginController::tienePermiso(self::ROL_ADMIN)) {
-        //     self::respuestaJSON(0, 'No tienes permiso para realizar esta acción.', null, 403);
-        //     return;
-        // }
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        if (!isset($_SESSION['login']) || $_SESSION['login'] !== true) {
+            self::respuestaJSON(0, 'Acceso no autorizado. Debes iniciar sesión.', null, 401);
+            return;
+        }
+        if (!LoginController::tienePermiso(self::ROL_ADMIN)) {
+            self::respuestaJSON(0, 'No tienes permiso para realizar esta acción.', null, 403);
+            return;
+        }
 
         try {
             // Validar campos requeridos usando helper

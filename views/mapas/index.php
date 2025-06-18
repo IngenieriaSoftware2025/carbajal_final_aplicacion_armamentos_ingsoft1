@@ -14,4 +14,4 @@
     </div>
 </div>
 
-<script src="<?= asset('build/js/mapas/index.js') ?>"></script>
+<script src="<?= asset('build/js/mapeado/index.js') ?>"></script>

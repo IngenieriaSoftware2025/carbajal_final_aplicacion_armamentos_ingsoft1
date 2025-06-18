@@ -11,6 +11,8 @@ use Model\Rutas;
 
 class HistorialActController extends ActiveRecord
 {
+    public $ruta;
+
     public static function index(Router $router)
     {
         $router->render('historial/index', [], 'layout');
@@ -18,8 +20,9 @@ class HistorialActController extends ActiveRecord
 
     public static function guardarHistorial()
     {
+
         try {
-            $validacion = self::validarRequeridos($_POST, ['id_usuario', 'id_ruta', 'ejecucion', 'status']);
+            $validacion = self::validarRequeridos($_POST, ['id_usuario', 'ruta', 'ejecucion', 'status']);
             if ($validacion !== true) {
                 self::respuestaJSON(0, $validacion, null, 400);
             }
@@ -28,7 +31,7 @@ class HistorialActController extends ActiveRecord
 
             $historial = new HistorialAct([
                 'id_usuario' => filter_var($datos['id_usuario'], FILTER_SANITIZE_NUMBER_INT),
-                'id_ruta' => filter_var($datos['id_ruta'], FILTER_SANITIZE_NUMBER_INT),
+                'ruta' => ucfirst(strtolower($datos['ruta'])),
                 'fecha_creacion' => date('Y-m-d H:i'),
                 'ejecucion' => ucfirst(strtolower($datos['ejecucion'])),
                 'status' => filter_var($datos['status'], FILTER_SANITIZE_NUMBER_INT),
@@ -43,12 +46,6 @@ class HistorialActController extends ActiveRecord
                     return true;
                 },
                 function ($historial) {
-                    if (!Rutas::valorExiste('id_ruta', $historial->id_ruta)) {
-                        return 'La ruta no existe';
-                    }
-                    return true;
-                },
-                function ($historial) {
                     if (strlen($historial->ejecucion) < 5) {
                         return 'La descripción de ejecución debe tener al menos 5 caracteres';
                     }
@@ -56,7 +53,7 @@ class HistorialActController extends ActiveRecord
                 }
             ];
 
-            $historial->crearConRespuesta($validaciones);
+            $historial->crearConRespuesta($validaciones, '/guarda_historial_ruta');
         } catch (Exception $e) {
             self::respuestaJSON(0, 'Error al guardar el historial: ' . $e->getMessage(), null, 500);
         }
@@ -64,45 +61,7 @@ class HistorialActController extends ActiveRecord
 
     public static function buscarHistorial()
     {
-        HistorialAct::buscarConRelacionMultiplesRespuesta(
-            [
-                [
-                    'tabla' => 'usuarios',
-                    'alias' => 'u',
-                    'llave_local' => 'id_usuario',
-                    'llave_foranea' => 'id_usuario',
-                    'campos' => [
-                        'nombre_usuario' => 'nombre1',
-                        'apellido_usuario' => 'apellido1',
-                        'dpi_usuario' => 'dpi'
-                    ],
-                    'tipo' => 'INNER'
-                ],
-                [
-                    'tabla' => 'rutas',
-                    'alias' => 'r',
-                    'llave_local' => 'id_ruta',
-                    'llave_foranea' => 'id_ruta',
-                    'campos' => [
-                        'descripcion_ruta' => 'descripcion'
-                    ],
-                    'tipo' => 'INNER'
-                ],
-                [
-                    'tabla' => 'aplicacion',
-                    'alias' => 'a',
-                    'from' => 'r',
-                    'llave_local' => 'id_app',
-                    'llave_foranea' => 'id_app',
-                    'campos' => [
-                        'nombre_aplicacion' => 'nombre_app_md'
-                    ],
-                    'tipo' => 'INNER'
-                ]
-            ],
-            "historial_act.situacion = 1",
-            "historial_act.fecha_creacion DESC"
-        );
+        Rutas::buscarConRespuesta("situacion = 1", "usuario, ruta, fecha_creacion, ejecucion, estado");
     }
 
     public static function modificarHistorial()
@@ -153,7 +112,7 @@ class HistorialActController extends ActiveRecord
                 }
             ];
 
-            $historial->actualizarConRespuesta($validaciones);
+            $historial->actualizarConRespuesta($validaciones, '/modifica_historial_ruta');
         } catch (Exception $e) {
             self::respuestaJSON(0, 'Error al modificar el historial: ' . $e->getMessage(), null, 500);
         }

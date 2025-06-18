@@ -116,7 +116,7 @@ use Controllers\LoginController;
                         </a>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="/carbajal_final_aplicacion_armamentos_ingsoft1/permisos">Definir Permisos Base</a></li>
-                            <li><a class="dropdown-item" href="/carbajal_final_aplicacion_armamentos_ingsoft1/aplicaciones">Módulos/Aplicaciones</a></li>
+                            <li><a class="dropdown-item" href="/carbajal_final_aplicacion_armamentos_ingsoft1/aplicaciones">Aplicaciones</a></li>
                             <li><a class="dropdown-item" href="/carbajal_final_aplicacion_armamentos_ingsoft1/permiso_aplicacion">Permisos por Módulo</a></li>
                             <li><a class="dropdown-item" href="/carbajal_final_aplicacion_armamentos_ingsoft1/asignacion_permisos">Asignar Roles a Usuarios</a></li>
                         </ul>

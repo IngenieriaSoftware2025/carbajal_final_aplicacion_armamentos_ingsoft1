@@ -35,17 +35,17 @@ class AsigPermisosController extends ActiveRecord
 
     public static function guardarAsignacion()
     {
-        // if (session_status() === PHP_SESSION_NONE) {
-        //     session_start();
-        // }
-        // if (!isset($_SESSION['login']) || $_SESSION['login'] !== true) {
-        //     self::respuestaJSON(0, 'Acceso no autorizado. Debes iniciar sesión.', null, 401);
-        //     return;
-        // }
-        // if (!LoginController::tienePermiso(self::ROL_ADMIN)) {
-        //     self::respuestaJSON(0, 'No tienes permiso para realizar esta acción.', null, 403);
-        //     return;
-        // }
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        if (!isset($_SESSION['login']) || $_SESSION['login'] !== true) {
+            self::respuestaJSON(0, 'Acceso no autorizado. Debes iniciar sesión.', null, 401);
+            return;
+        }
+        if (!LoginController::tienePermiso(self::ROL_ADMIN)) {
+            self::respuestaJSON(0, 'No tienes permiso para realizar esta acción.', null, 403);
+            return;
+        }
 
         try {
             // Validar campos requeridos usando helper
@@ -102,7 +102,7 @@ class AsigPermisosController extends ActiveRecord
             ];
 
             // Guardar asignación en la base de datos
-            $asignacion->crearConRespuesta($validaciones);
+            $asignacion->crearConRespuesta($validaciones, '/guarda_asig_permiso');
         } catch (Exception $e) {
             self::respuestaJSON(0, 'Error al guardar la asignación: ' . $e->getMessage(), null, 500);
         }
@@ -128,7 +128,7 @@ class AsigPermisosController extends ActiveRecord
         AsigPermisos::buscarConRelacionMultiplesRespuesta(
             [
                 [
-                    'tabla' => 'usuarios',
+                    'tabla' => 'dgcm_usuarios',
                     'alias' => 'u',
                     'llave_local' => 'id_usuario',
                     'llave_foranea' => 'id_usuario',
@@ -140,7 +140,7 @@ class AsigPermisosController extends ActiveRecord
                     'tipo' => 'INNER'
                 ],
                 [
-                    'tabla' => 'permiso_aplicacion',
+                    'tabla' => 'dgcm_permiso_aplicacion',
                     'alias' => 'pa',
                     'llave_local' => 'id_permiso_app',
                     'llave_foranea' => 'id_permiso_app',
@@ -148,7 +148,7 @@ class AsigPermisosController extends ActiveRecord
                     'tipo' => 'INNER'
                 ],
                 [
-                    'tabla' => 'permisos',
+                    'tabla' => 'dgcm_permisos',
                     'alias' => 'p',
                     'from' => 'pa',
                     'llave_local' => 'id_permiso',
@@ -160,7 +160,7 @@ class AsigPermisosController extends ActiveRecord
                     'tipo' => 'INNER'
                 ],
                 [
-                    'tabla' => 'aplicacion',
+                    'tabla' => 'dgcm_permisos',
                     'alias' => 'a',
                     'from' => 'pa',
                     'llave_local' => 'id_app',
@@ -171,8 +171,8 @@ class AsigPermisosController extends ActiveRecord
                     'tipo' => 'INNER'
                 ]
             ],
-            "asig_permisos.situacion = 1",
-            "asig_permisos.fecha_creacion DESC"
+            "dgcm_asig_permisos.situacion = 1",
+            "dgcm_asig_permisos.fecha_creacion DESC"
         );
     }
 
@@ -245,7 +245,7 @@ class AsigPermisosController extends ActiveRecord
             ];
 
             // Guardar asignación modificada en la base de datos
-            $permisosAsig->actualizarConRespuesta($validaciones);
+            $permisosAsig->actualizarConRespuesta($validaciones, '/modifica_asig_permiso');
         } catch (Exception $e) {
             self::respuestaJSON(0, 'Error al modificar asignacion permiso: ' . $e->getMessage(), null, 500);
         }
@@ -283,7 +283,10 @@ class AsigPermisosController extends ActiveRecord
                 'fecha_expiro' => date('Y-m-d H:i:s')
             ]);
 
-            $permisoAsig->guardarConRespuesta();
+            /**
+             * @var string|int $id ID de la asignación a eliminar.
+             */
+            AsigPermisos::eliminarLogicoConRespuesta($id, 'id_asig_permiso', '/elimina_asig_permiso');
         } catch (Exception $e) {
             self::respuestaJSON(0, 'Error al eliminar asignación: ' . $e->getMessage(), null, 500);
         }

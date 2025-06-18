@@ -1,0 +1,133 @@
+SELECT * FROM dgcm_usuarios
+CREATE TABLE dgcm_usuarios (
+    id_usuario SERIAL PRIMARY KEY,
+    nombre1  VARCHAR(70)NOT NULL,
+    nombre2  VARCHAR(70),
+    apellido1 VARCHAR(70) NOT NULL,
+    apellido2 VARCHAR(70),
+    telefono BIGINT,
+    dpi BIGINT,
+    correo VARCHAR(100) NOT NULL UNIQUE,
+    usuario_clave lVARCHAR(1056) NOT NULL,
+    token lVARCHAR(1056),
+    fecha_creacion DATETIME YEAR TO SECOND DEFAULT CURRENT YEAR TO SECOND,
+    fecha_clave DATETIME YEAR TO SECOND DEFAULT CURRENT YEAR TO SECOND,
+    fotografia lVARCHAR(2056),
+    situacion SMALLINT  DEFAULT 1
+);
+-------------------------------
+SELECT * FROM dgcm_aplicacion
+CREATE TABLE dgcm_aplicacion (
+    id_app SERIAL PRIMARY KEY,
+    nombre_app_lg LVARCHAR(2056),
+    nombre_app_md LVARCHAR(1056),
+    nombre_app_ct LVARCHAR(255),
+    fecha_creacion DATETIME YEAR TO SECOND DEFAULT CURRENT YEAR TO SECOND,
+    situacion SMALLINT  DEFAULT 1
+);
+
+-----------------------------------
+select *from dgcm_permisos
+CREATE TABLE dgcm_permisos (
+    id_permiso SERIAL PRIMARY KEY,
+    nombre_permiso VARCHAR(70) NOT NULL,
+    clave_permiso VARCHAR(70),
+    descripcion VARCHAR(255),
+    fecha_creacion DATETIME YEAR TO SECOND DEFAULT CURRENT YEAR TO SECOND,
+    situacion SMALLINT  DEFAULT 1
+);
+
+SELECT * FROM dgcm_permiso_aplicacion
+CREATE TABLE dgcm_permiso_aplicacion (
+    id_permiso_app SERIAL PRIMARY KEY,
+    id_permiso INT NOT NULL,
+    id_app INT NOT NULL,
+    fecha_creacion DATETIME YEAR TO SECOND DEFAULT CURRENT YEAR TO SECOND,
+    situacion SMALLINT DEFAULT 1,
+  
+    FOREIGN KEY (id_permiso) REFERENCES dgcm_permisos (id_permiso),
+    FOREIGN KEY (id_app) REFERENCES dgcm_aplicacion (id_app)
+);
+
+----------------------------------------------------------------------
+select *from dgcm_asig_permisos
+CREATE TABLE dgcm_asig_permisos (
+    id_asig_permiso SERIAL PRIMARY KEY,
+    id_usuario INT NOT NULL,
+    id_permiso_app INT NOT NULL,
+    fecha_creacion DATETIME YEAR TO SECOND DEFAULT CURRENT YEAR TO SECOND,
+    fecha_expiro DATETIME YEAR TO SECOND,
+    usuario_asigno INT,
+    motivo LVARCHAR(255),
+    situacion SMALLINT  DEFAULT 1
+);
+
+ALTER TABLE dgcm_asig_permisos 
+    ADD CONSTRAINT FOREIGN KEY (id_usuario) 
+    REFERENCES dgcm_usuarios CONSTRAINT fk_permisos_usuarios;
+    
+ALTER TABLE dgcm_asig_permisos 
+    ADD CONSTRAINT FOREIGN KEY (id_permiso_app) 
+    REFERENCES dgcm_permiso_aplicacion CONSTRAINT fk_permisos_asig;
+    
+--------------------------------------------------------
+
+SELECT * FROM dgcm_rutas
+CREATE TABLE dgcm_rutas (
+    id_ruta SERIAL PRIMARY KEY,
+    id_app INT,
+    ruta LVARCHAR(255),
+    descripcion LVARCHAR(2056),
+    situacion SMALLINT  DEFAULT 1
+);
+
+ALTER TABLE dgcm_rutas 
+    ADD CONSTRAINT FOREIGN KEY (id_app) 
+    REFERENCES dgcm_aplicacion CONSTRAINT fk_rutas_aplicacion;
+
+
+SELECT * FROM dgcm_historial_act
+CREATE TABLE dgcm_historial_act (
+    id_hist_act SERIAL PRIMARY KEY,
+    id_usuario INT,
+    id_ruta INT,
+    fecha_creacion DATETIME YEAR TO MINUTE,
+    ejecucion LVARCHAR(2056),
+    status SMALLINT,
+    situacion SMALLINT  DEFAULT 1
+);
+
+ALTER TABLE dgcm_historial_act 
+    ADD CONSTRAINT FOREIGN KEY (id_usuario) 
+    REFERENCES dgcm_usuarios CONSTRAINT fk_historial_usuarios;
+    
+ALTER TABLE dgcm_historial_act 
+    ADD CONSTRAINT FOREIGN KEY (id_ruta) 
+    REFERENCES dgcm_rutas CONSTRAINT fk_historial_rutas;
+---------------
+
+CREATE TABLE dgcm_tipos_armas (
+    id_tipo_arma SERIAL PRIMARY KEY,
+    nombre_tipo VARCHAR(100) NOT NULL,
+    calibre VARCHAR(50),
+    fecha_creacion DATETIME YEAR TO SECOND DEFAULT CURRENT YEAR TO SECOND,
+    situacion SMALLINT DEFAULT 1
+);
+
+CREATE TABLE dgcm_armas (
+    id_arma SERIAL PRIMARY KEY,
+    id_tipo_arma INT NOT NULL,
+    id_usuario INT NOT NULL,
+    cantidad SMALLINT NOT NULL,
+    estado VARCHAR(50),
+    fecha_registro DATETIME YEAR TO SECOND DEFAULT CURRENT YEAR TO SECOND,
+    situacion SMALLINT DEFAULT 1,
+    -- Claves foráneas
+    FOREIGN KEY (id_tipo_arma)
+        REFERENCES dgcm_tipos_armas (id_tipo_arma)
+        CONSTRAINT fk_armas_tipos,
+
+    FOREIGN KEY (id_usuario)
+        REFERENCES dgcm_usuarios (id_usuario)
+        CONSTRAINT fk_armas_usuarios
+);

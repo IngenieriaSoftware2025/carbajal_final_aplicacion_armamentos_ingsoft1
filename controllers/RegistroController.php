@@ -6,6 +6,7 @@ use Exception;
 use Model\Usuarios;
 use Model\ActiveRecord;
 use MVC\Router;
+use Model\HistorialAct;
 use Model\AsigPermisos;
 use Model\PermisoAplicacion;
 use Model\Permisos;
@@ -16,8 +17,6 @@ use Controllers\LoginController;
 class RegistroController extends ActiveRecord
 {
     private const ROL_ADMIN = 'ADMIN';
-    private const ROL_CLIENTE_CLAVE = 'CLIENTE';
-    private const NOMBRE_APP_DEFAULT = 'TIENDA';
 
     public static function mostrarPaginaRegistro(Router $router)
     {
@@ -105,7 +104,6 @@ class RegistroController extends ActiveRecord
                     if (strlen($usuario->telefono) != 8) return 'El teléfono debe tener exactamente 8 dígitos';
                     if (!filter_var($usuario->correo, FILTER_VALIDATE_EMAIL)) return 'El correo electrónico no es válido';
                     if (!empty($usuario->dpi) && strlen($usuario->dpi) != 13) return 'El DPI debe tener exactamente 13 dígitos';
-                    // VALIDAR UNICIDAD para un nuevo usuario (sin excluir ID)
                     if (Usuarios::valorExiste('correo', $usuario->correo)) return 'El correo ya está registrado';
                     if (Usuarios::valorExiste('telefono', $usuario->telefono)) return 'El teléfono ya está registrado';
                     if (!empty($usuario->dpi) && Usuarios::valorExiste('dpi', $usuario->dpi)) return 'El DPI ya está registrado';
@@ -123,8 +121,31 @@ class RegistroController extends ActiveRecord
                 }
             }
 
-            // Crear con validaciones y respuesta automática
-            $usuario->crearConRespuesta($validaciones);
+            $resultado = $usuario->crear();
+
+            if ($resultado && $resultado['resultado']) {
+
+                $sqlHist = "
+                    INSERT INTO dgcm_historial_act (
+                        usuario, ruta, fecha_creacion, ejecucion, estado, situacion
+                    ) VALUES (
+                        :usuario, :ruta, CURRENT YEAR TO MINUTE, :ejecucion, :estado, 1
+                    )
+                ";
+
+                $stmt = self::$db->prepare($sqlHist);
+                $stmt->bindValue(':usuario',   $_SESSION['nombre_completo'] ?? 'Sistema');
+
+                $stmt->bindValue(':ruta', '/guarda_usuario');
+                $stmt->bindValue(':ejecucion', 'Usuario creado con éxito');
+                $stmt->bindValue(':estado',    1, \PDO::PARAM_INT);
+                $stmt->execute();
+
+                self::respuestaJSON(1, 'Usuario creado exitosamente');
+            } else {
+
+                self::respuestaJSON(0, 'Error al guardar el usuario');
+            }
         } catch (Exception $e) {
             self::respuestaJSON(0, 'Error al guardar usuario: ' . $e->getMessage(), null, 500);
         }
@@ -182,7 +203,6 @@ class RegistroController extends ActiveRecord
                 }
             }
 
-
             // Actualizar propiedades
             $datosParaSincronizar = [
                 'nombre1' => ucwords(strtolower($datos['nombre1'])),
@@ -211,7 +231,6 @@ class RegistroController extends ActiveRecord
                     if (strlen($usuario->telefono) != 8) return 'El teléfono debe tener exactamente 8 dígitos';
                     if (!filter_var($usuario->correo, FILTER_VALIDATE_EMAIL)) return 'El correo electrónico no es válido';
                     if (!empty($usuario->dpi) && strlen($usuario->dpi) != 13) return 'El DPI debe tener exactamente 13 dígitos';
-                    // Validar unicidad excluyendo el registro actual
                     if (Usuarios::valorExiste('correo', $usuario->correo, $usuario->id_usuario, 'id_usuario')) return 'El correo ya está en uso';
                     if (Usuarios::valorExiste('telefono', $usuario->telefono, $usuario->id_usuario, 'id_usuario')) return 'El teléfono ya está en uso';
                     if (!empty($usuario->dpi) && Usuarios::valorExiste('dpi', $usuario->dpi, $usuario->id_usuario, 'id_usuario')) return 'El DPI ya está en uso';
@@ -220,7 +239,7 @@ class RegistroController extends ActiveRecord
             ];
 
             // Actualizar con validaciones automáticas
-            $usuario->actualizarConRespuesta($validaciones);
+            $usuario->actualizarConRespuesta($validaciones, '/modifica_usuario');
         } catch (Exception $e) {
             self::respuestaJSON(0, 'Error al modificar usuario: ' . $e->getMessage(), null, 500);
         }
@@ -257,7 +276,7 @@ class RegistroController extends ActiveRecord
             }
 
             // Eliminar lógicamente usando helper
-            Usuarios::eliminarLogicoConRespuesta($id, 'id_usuario');
+            Usuarios::eliminarLogicoConRespuesta($id, 'id_usuario', '/elimina_usuario');
         } catch (Exception $e) {
             self::respuestaJSON(0, 'Error al eliminar usuario: ' . $e->getMessage(), null, 500);
         }

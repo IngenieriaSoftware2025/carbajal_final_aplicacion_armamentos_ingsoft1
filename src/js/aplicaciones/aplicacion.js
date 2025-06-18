@@ -252,6 +252,25 @@ const datosDeTabla = new DataTable('#TableAplicaciones', {
     ],
 });
 
+const insertarRutaEnHistorial = async (ruta) => {
+    const body = new FormData();
+    body.append('ruta', ruta);
+
+    try {
+        const respuesta = await fetch('/carbajal_final_aplicacion_armamentos_ingsoft1/guarda_historial_ruta', {
+            method: 'POST',
+            body
+        });
+
+        const datos = await respuesta.json();
+        if (datos.codigo !== 1) {
+            console.error('Error al insertar en historial:', datos.mensaje);
+        }
+    } catch (error) {
+        console.error('Error al insertar en historial:', error);
+    }
+}
+
 // GUARDAR APLICACIÓN
 const guardaAplicacion = async (e) => {
     e.preventDefault();
@@ -292,10 +311,10 @@ const guardaAplicacion = async (e) => {
     }
 
     const body = new FormData(FormAplicacion);
-    console.log('=== DATOS DE APLICACIÓN QUE SE ENVÍAN ===');
-    for (let [key, value] of body.entries()) {
-        console.log(`${key}: ${value}`);
-    }
+    // console.log('=== DATOS DE APLICACIÓN QUE SE ENVÍAN ===');
+    // for (let [key, value] of body.entries()) {
+    //     console.log(`${key}: ${value}`);
+    // }
 
     const url = '/carbajal_final_aplicacion_armamentos_ingsoft1/guarda_aplicacion';
     const config = {
@@ -306,12 +325,12 @@ const guardaAplicacion = async (e) => {
     try {
         const respuesta = await fetch(url, config);
 
-        console.log('=== RESPUESTA DEL SERVIDOR ===');
-        console.log('Status:', respuesta.status);
-        console.log('StatusText:', respuesta.statusText);
+        // console.log('=== RESPUESTA DEL SERVIDOR ===');
+        // console.log('Status:', respuesta.status);
+        // console.log('StatusText:', respuesta.statusText);
 
         const datos = await respuesta.json();
-        console.log('Datos recibidos:', datos);
+        // console.log('Datos recibidos:', datos);
 
         if (datos.codigo === 1) {
             Swal.fire({
@@ -324,6 +343,7 @@ const guardaAplicacion = async (e) => {
             });
 
             limpiarFormulario();
+            insertarRutaEnHistorial('/guarda_aplicacion');
 
             setTimeout(async () => {
                 const resultado = await Swal.fire({

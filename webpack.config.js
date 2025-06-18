@@ -16,11 +16,11 @@ module.exports = {
     'js/asignaciones/asig_permisos': './src/js/asignaciones/asig_permisos.js',
     'js/historial/index': './src/js/historial/index.js',
     'js/rutas/rutas': './src/js/rutas/rutas.js',
-
+    'js/mapeado/index': './src/js/mapeado/index.js',
 
     // 'js/estadisticas/index': './src/js/estadisticas/index.js',
     // 'js/graficas/index': './src/js/graficas/index.js',
-    // 'js/mapas/index': './src/js/mapas/index.js',
+
   },
   output: {
     filename: '[name].js',

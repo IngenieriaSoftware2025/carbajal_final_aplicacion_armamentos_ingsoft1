@@ -73,10 +73,9 @@ $router->post('/elimina_ruta', [RutaController::class, 'eliminarRuta']);
 
 // Rutas para Historial de Rutas
 $router->get('/historial', [HistorialActController::class, 'index']);
-$router->get('/busca_ruta', [HistorialActController::class, 'buscarRutas']);
-$router->post('/guarda_ruta', [HistorialActController::class, 'guardarRuta']);
-$router->post('/modifica_ruta', [HistorialActController::class, 'modificarRuta']);
-$router->post('/elimina_ruta', [HistorialActController::class, 'eliminarRuta']);
+$router->get('/busca_historial_ruta', [HistorialActController::class, 'buscarHistorial']);
+$router->post('/guarda_historial_ruta', [HistorialActController::class, 'guardarHistorial']);
+$router->post('/modifica_historial_ruta', [HistorialActController::class, 'modificarHistorial']);
 
 // Rutas para el Mapa
 $router->get('/mapa', [MapaController::class, 'renderizarMapa']);

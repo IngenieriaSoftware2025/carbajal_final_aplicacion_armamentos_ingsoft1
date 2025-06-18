@@ -33,17 +33,17 @@ class PermisoAplicacionController extends ActiveRecord
 
     public static function guardarRelacion()
     {
-        // if (session_status() === PHP_SESSION_NONE) {
-        //     session_start();
-        // }
-        // if (!isset($_SESSION['login']) || $_SESSION['login'] !== true) {
-        //     self::respuestaJSON(0, 'Acceso no autorizado. Debes iniciar sesión.', null, 401);
-        //     return;
-        // }
-        // if (!LoginController::tienePermiso(self::ROL_ADMIN)) {
-        //     self::respuestaJSON(0, 'No tienes permiso para realizar esta acción.', null, 403);
-        //     return;
-        // }
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        if (!isset($_SESSION['login']) || $_SESSION['login'] !== true) {
+            self::respuestaJSON(0, 'Acceso no autorizado. Debes iniciar sesión.', null, 401);
+            return;
+        }
+        if (!LoginController::tienePermiso(self::ROL_ADMIN)) {
+            self::respuestaJSON(0, 'No tienes permiso para realizar esta acción.', null, 403);
+            return;
+        }
 
         try {
             $validacion = self::validarRequeridos($_POST, ['id_permiso', 'id_app']);
@@ -84,7 +84,7 @@ class PermisoAplicacionController extends ActiveRecord
         PermisoAplicacion::buscarConRelacionMultiplesRespuesta(
             [
                 [
-                    'tabla' => 'permisos',
+                    'tabla' => 'dgcm_permisos',
                     'alias' => 'p',
                     'llave_local' => 'id_permiso',
                     'llave_foranea' => 'id_permiso',
@@ -96,7 +96,7 @@ class PermisoAplicacionController extends ActiveRecord
                     'tipo' => 'INNER'
                 ],
                 [
-                    'tabla' => 'aplicacion',
+                    'tabla' => 'dgcm_aplicacion',
                     'alias' => 'a',
                     'llave_local' => 'id_app',
                     'llave_foranea' => 'id_app',
@@ -106,8 +106,8 @@ class PermisoAplicacionController extends ActiveRecord
                     'tipo' => 'INNER'
                 ]
             ],
-            "permiso_aplicacion.situacion = 1",
-            "permiso_aplicacion.fecha_creacion DESC"
+            "dgcm_permiso_aplicacion.situacion = 1",
+            "dgcm_permiso_aplicacion.fecha_creacion DESC"
         );
     }
 

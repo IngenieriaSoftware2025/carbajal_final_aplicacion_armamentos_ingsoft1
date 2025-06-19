@@ -86,7 +86,8 @@ use Controllers\LoginController;
                             ?>
                                 <li><a class="dropdown-item" href="/carbajal_final_aplicacion_armamentos_ingsoft1/registro">Gestionar Usuarios Sistema</a></li>
                                 <li><a class="dropdown-item" href="/carbajal_final_aplicacion_armamentos_ingsoft1/historial">Ver Historial de rutas</a></li>
-                                <li><a class="dropdown-item" href="/carbajal_final_aplicacion_armamentos_ingsoft1/ASISTENTEs">Gestionar ASISTENTEs</a></li>
+                                <li><a class="dropdown-item" href="/carbajal_final_aplicacion_armamentos_ingsoft1/tipo_armas">Gestion tipo Armas</a></li>
+                                <li><a class="dropdown-item" href="/carbajal_final_aplicacion_armamentos_ingsoft1/armas">Gestion Armas</a></li>
                             <?php endif; ?>
                         </ul>
                     </div>

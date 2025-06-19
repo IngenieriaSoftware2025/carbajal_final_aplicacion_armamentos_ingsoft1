@@ -5,35 +5,42 @@ namespace Controllers;
 use Exception;
 use MVC\Router;
 use Model\TiposArmas;
-use Model\Usuarios;
+use Model\ActiveRecord;
 
-class TipoArmaController
+class TipoArmaController extends ActiveRecord
 {
     public static function index(Router $router)
     {
-        $router->render('tipos_armas/index', [], 'layout');
+        $router->render('tipo/index', [], 'layout');
     }
 
     public static function guardarTipoArma()
     {
         try {
-            $validacion = self::validarRequeridos($_POST, ['nombre_tipo']);
-            if ($validacion !== true) {
-                self::respuestaJSON(0, $validacion, null, 400);
-            }
-
             $datos = self::sanitizarDatos($_POST);
 
             $tipo = new TiposArmas([
-                'nombre_tipo'    => ucfirst(strtolower($datos['nombre_tipo'])),
-                'calibre'        => $datos['calibre'] ? strtoupper($datos['calibre']) : null,
-                'situacion'      => 1
+                'nombre_tipo' => ucfirst(strtolower($datos['nombre_tipo'])),
+                'calibre'     => !empty($datos['calibre']) ? strtoupper($datos['calibre']) : null,
+                'situacion'   => 1
             ]);
 
             $validaciones = [
-                function ($tipo) {
-                    if (strlen($tipo->nombre_tipo) < 3) {
-                        return 'El nombre del tipo debe tener al menos 3 caracteres';
+                function ($obj) {
+                    if (empty($obj->nombre_tipo)) {
+                        return 'El nombre del tipo de arma es obligatorio.';
+                    }
+                    return true;
+                },
+                function ($obj) {
+                    if (strlen($obj->nombre_tipo) < 3) {
+                        return 'El nombre del tipo debe tener al menos 3 caracteres.';
+                    }
+                    return true;
+                },
+                function ($obj) {
+                    if (self::valorExiste('nombre_tipo', $obj->nombre_tipo)) {
+                        return 'Este tipo de arma ya está registrado.';
                     }
                     return true;
                 }
@@ -41,23 +48,13 @@ class TipoArmaController
 
             $tipo->crearConRespuesta($validaciones);
         } catch (Exception $e) {
-            self::respuestaJSON(0, 'Error al guardar el tipo de arma: ' . $e->getMessage(), null, 500);
+            self::respuestaJSON(0, 'Error interno al guardar el tipo de arma: ' . $e->getMessage(), null, 500);
         }
     }
 
     public static function buscarTiposArmas()
     {
-        TiposArmas::buscarTodosConRespuesta(
-            [
-                'id_tipo_arma',
-                'nombre_tipo',
-                'calibre',
-                'fecha_creacion',
-                'situacion'
-            ],
-            "situacion = 1",
-            "id_tipo_arma DESC"
-        );
+        TiposArmas::buscarConRespuesta("situacion = 1", "nombre_tipo, calibre");
     }
 
     public static function modificarTipoArma()
@@ -121,29 +118,5 @@ class TipoArmaController
         } catch (Exception $e) {
             self::respuestaJSON(0, 'Error al eliminar el tipo de arma: ' . $e->getMessage(), null, 500);
         }
-    }
-
-    // Métodos auxiliares (puedes moverlos a tu clase base si no existen)
-    protected static function validarRequeridos($data, $campos)
-    {
-        foreach ($campos as $campo) {
-            if (empty($data[$campo])) {
-                return "El campo {$campo} es requerido";
-            }
-        }
-        return true;
-    }
-
-    protected static function sanitizarDatos($data)
-    {
-        // Aquí llamas a tu método de sanitización general, o aplicas filter_var según tipo.
-        return array_map('trim', $data);
-    }
-
-    protected static function respuestaJSON($status, $msg, $data = null, $code = 200)
-    {
-        http_response_code($code);
-        echo json_encode(['status' => $status, 'message' => $msg, 'data' => $data]);
-        exit;
     }
 }

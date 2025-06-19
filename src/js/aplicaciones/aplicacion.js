@@ -252,24 +252,6 @@ const datosDeTabla = new DataTable('#TableAplicaciones', {
     ],
 });
 
-const insertarRutaEnHistorial = async (ruta) => {
-    const body = new FormData();
-    body.append('ruta', ruta);
-
-    try {
-        const respuesta = await fetch('/carbajal_final_aplicacion_armamentos_ingsoft1/guarda_historial_ruta', {
-            method: 'POST',
-            body
-        });
-
-        const datos = await respuesta.json();
-        if (datos.codigo !== 1) {
-            console.error('Error al insertar en historial:', datos.mensaje);
-        }
-    } catch (error) {
-        console.error('Error al insertar en historial:', error);
-    }
-}
 
 // GUARDAR APLICACIÓN
 const guardaAplicacion = async (e) => {
@@ -316,6 +298,8 @@ const guardaAplicacion = async (e) => {
     //     console.log(`${key}: ${value}`);
     // }
 
+    const urlHistorial = '/carbajal_final_aplicacion_armamentos_ingsoft1/guarda_historial_ruta';
+
     const url = '/carbajal_final_aplicacion_armamentos_ingsoft1/guarda_aplicacion';
     const config = {
         method: 'POST',
@@ -343,7 +327,6 @@ const guardaAplicacion = async (e) => {
             });
 
             limpiarFormulario();
-            insertarRutaEnHistorial('/guarda_aplicacion');
 
             setTimeout(async () => {
                 const resultado = await Swal.fire({

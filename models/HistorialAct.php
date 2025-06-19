@@ -14,7 +14,7 @@ class HistorialAct extends ActiveRecord
     public static $idTabla = ['id_hist_act'];
     public static $columnasDB = [
         'id_usuario',
-        'ruta',
+        'id_ruta',
         'fecha_creacion',
         'ejecucion',
         'estado',
@@ -24,7 +24,7 @@ class HistorialAct extends ActiveRecord
     // Crea las variables para almacenar los datos
     public $id_hist_act;
     public $id_usuario;
-    public $ruta;
+    public $id_ruta;
     public $fecha_creacion;
     public $ejecucion;
     public $estado;
@@ -34,7 +34,7 @@ class HistorialAct extends ActiveRecord
     {
         $this->id_hist_act = $historial['id_hist_act'] ?? null;
         $this->id_usuario = $historial['id_usuario'] ?? null;
-        $this->ruta = $historial['ruta'] ?? null;
+        $this->id_ruta = $historial['id_ruta'] ?? null;
         $this->fecha_creacion = $historial['fecha_creacion'] ?? null;
         $this->ejecucion = $historial['ejecucion'] ?? '';
         $this->estado = $historial['estado'] ?? null;

@@ -4,7 +4,7 @@ namespace Model;
 
 use Model\ActiveRecord;
 
-class Armas extends ActiveRecord
+class TiposArmas extends ActiveRecord
 {
     protected static $tabla = 'dgcm_tipos_armas';
     protected static $idTabla = ['id_tipo_arma'];

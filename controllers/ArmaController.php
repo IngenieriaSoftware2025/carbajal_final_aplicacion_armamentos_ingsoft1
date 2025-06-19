@@ -62,13 +62,34 @@ class ArmaController
 
     public static function buscarArmas()
     {
-        Armas::buscarConRelacionRespuesta(
-            'dgcm_tipos_armas',
-            'id_tipo_arma',
-            'id_tipo_arma',
-            ['nombre_tipo' => 'tipo', 'calibre' => 'calibre'],
+
+        Armas::buscarConRelacionMultiplesRespuesta(
+            [
+                [
+                    'tabla' => 'dgcm_tipos_armas',
+                    'alias' => 'ta',
+                    'llave_local' => 'id_tipo_arma',
+                    'llave_foranea' => 'id_tipo_arma',
+                    'campos' => [
+                        'nombre_tipo' => 'nombre_tipo',
+                        'calibre' => 'calibre'
+                    ],
+                    'tipo' => 'INNER'
+                ],
+                [
+                    'tabla' => 'dgcm_usuarios',
+                    'alias' => 'u',
+                    'llave_local' => 'id_usuario',
+                    'llave_foranea' => 'id_usuario',
+                    'campos' => [
+                        'nombre_usuario' => 'nombre1',
+                        'apellido_usuario' => 'apellido1'
+                    ],
+                    'tipo' => 'INNER'
+                ]
+            ],
             "dgcm_armas.situacion = 1",
-            "dgcm_armas.id_arma DESC"
+            "dgcm_armas.fecha_registro DESC"
         );
     }
 

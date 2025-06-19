@@ -93,7 +93,7 @@ CREATE TABLE dgcm_historial_act (
     id_ruta INT,
     fecha_creacion DATETIME YEAR TO MINUTE,
     ejecucion LVARCHAR(2056),
-    status SMALLINT,
+    estado SMALLINT,
     situacion SMALLINT  DEFAULT 1
 );
 
@@ -104,8 +104,9 @@ ALTER TABLE dgcm_historial_act
 ALTER TABLE dgcm_historial_act 
     ADD CONSTRAINT FOREIGN KEY (id_ruta) 
     REFERENCES dgcm_rutas CONSTRAINT fk_historial_rutas;
+    
 ---------------
-
+SELECT * FROM dgcm_tipos_armas
 CREATE TABLE dgcm_tipos_armas (
     id_tipo_arma SERIAL PRIMARY KEY,
     nombre_tipo VARCHAR(100) NOT NULL,

@@ -14,9 +14,10 @@ use Controllers\AsigPermisosController;
 use Controllers\PermisoAplicacionController;
 use Controllers\RutaController;
 use Controllers\HistorialActController;
+use Controllers\ArmaController;
+use Controllers\TipoArmaController;
 
 use Controllers\MapaController;
-use Controllers\EstadisticasController;
 use Controllers\GraficasController;
 
 $router = new Router();
@@ -77,16 +78,26 @@ $router->get('/busca_historial_ruta', [HistorialActController::class, 'buscarHis
 $router->post('/guarda_historial_ruta', [HistorialActController::class, 'guardarHistorial']);
 $router->post('/modifica_historial_ruta', [HistorialActController::class, 'modificarHistorial']);
 
+// Rutas para la gestión de armas
+$router->get('/armas', [ArmaController::class, 'index']);
+$router->get('/busca_arma', [ArmaController::class, 'buscarArmas']);
+$router->post('/guarda_arma', [ArmaController::class, 'guardarArma']);
+$router->post('/modifica_arma', [ArmaController::class, 'modificarArma']);
+$router->post('/elimina_arma', [ArmaController::class, 'eliminarArma']);
+
+// Rutas para la gestión de armas
+$router->get('/tipo_armas', [TipoArmaController::class, 'index']);
+$router->get('/busca_tipo_arma', [TipoArmaController::class, 'buscarTiposArmas']);
+$router->post('/guarda_tipo_arma', [TipoArmaController::class, 'guardarTipoArma']);
+$router->post('/modifica_tipo_arma', [TipoArmaController::class, 'modificarTipoArma']);
+$router->post('/elimina_tipo_arma', [TipoArmaController::class, 'eliminarTipoArma']);
+
 // Rutas para el Mapa
 $router->get('/mapa', [MapaController::class, 'renderizarMapa']);
 
 // Rutas para graficas
-$router->get('/graficas', [GraficasController::class, 'renderizarGraficas']);
+$router->get('/graficas', [GraficasController::class, 'index']);
 $router->get('/graficas/datos', [GraficasController::class, 'obtenerDatosGraficas']);
-
-// Rutas para Estadísticas
-$router->get('/estadisticas', [EstadisticasController::class, 'index']);
-$router->get('/estadisticas/obtenerDetalleEstadistica', [EstadisticasController::class, 'obtenerDatos']);
 
 // Comprueba y valida las rutas, que existan y les asigna las funciones del Controlador
 $router->comprobarRutas();

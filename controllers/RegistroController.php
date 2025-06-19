@@ -124,26 +124,8 @@ class RegistroController extends ActiveRecord
             $resultado = $usuario->crear();
 
             if ($resultado && $resultado['resultado']) {
-
-                $sqlHist = "
-                    INSERT INTO dgcm_historial_act (
-                        usuario, ruta, fecha_creacion, ejecucion, estado, situacion
-                    ) VALUES (
-                        :usuario, :ruta, CURRENT YEAR TO MINUTE, :ejecucion, :estado, 1
-                    )
-                ";
-
-                $stmt = self::$db->prepare($sqlHist);
-                $stmt->bindValue(':usuario',   $_SESSION['nombre_completo'] ?? 'Sistema');
-
-                $stmt->bindValue(':ruta', '/guarda_usuario');
-                $stmt->bindValue(':ejecucion', 'Usuario creado con éxito');
-                $stmt->bindValue(':estado',    1, \PDO::PARAM_INT);
-                $stmt->execute();
-
                 self::respuestaJSON(1, 'Usuario creado exitosamente');
             } else {
-
                 self::respuestaJSON(0, 'Error al guardar el usuario');
             }
         } catch (Exception $e) {

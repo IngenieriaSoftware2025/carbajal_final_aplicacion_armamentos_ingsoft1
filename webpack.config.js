@@ -17,10 +17,9 @@ module.exports = {
     'js/historial/index': './src/js/historial/index.js',
     'js/rutas/rutas': './src/js/rutas/rutas.js',
     'js/mapeado/index': './src/js/mapeado/index.js',
-
-    // 'js/estadisticas/index': './src/js/estadisticas/index.js',
-    // 'js/graficas/index': './src/js/graficas/index.js',
-
+    'js/arma/index': './src/js/arma/index.js',
+    'js/tipo/index': './src/js/tipo/index.js',
+    'js/graficas/index': './src/js/graficas/index.js',
   },
   output: {
     filename: '[name].js',

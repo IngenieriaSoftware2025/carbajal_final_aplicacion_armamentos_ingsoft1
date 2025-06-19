@@ -241,6 +241,37 @@ const datosDeTabla = new DataTable('#TableUsuarios', {
     ],
 });
 
+const registrarHistorial = async (idRuta, descripcion, estado) => {
+    try {
+        const url = '/carbajal_final_aplicacion_armamentos_ingsoft1/guarda_historial_ruta';
+
+        // Preparamos los datos para enviar en formato de formulario
+        const datos = new URLSearchParams();
+        datos.append('id_ruta', idRuta);
+        datos.append('ejecucion', descripcion);
+        datos.append('estado', estado);
+
+        const respuesta = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: datos
+        });
+
+        const resultado = await respuesta.json();
+        if (resultado.codigo !== 1) {
+            // Si falla el historial, solo lo mostramos en la consola para no molestar al usuario
+            console.error('No se pudo registrar el historial:', resultado.mensaje);
+        }
+
+    } catch (error) {
+        console.error('Error de red al registrar historial:', error);
+    }
+};
+
+
+
 // Guardar usuario
 const guardaUsuario = async (e) => {
     e.preventDefault();
@@ -318,6 +349,8 @@ const guardaUsuario = async (e) => {
                 showConfirmButton: false,
                 timer: 1000
             });
+
+            registrarHistorial(1, 'Creación exitosa de nuevo usuario', 1);
 
             limpiarFormulario();
 

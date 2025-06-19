@@ -143,7 +143,6 @@ const datosTabla = new DataTable("#TableRutas", {
             render: (data) => {
                 return `
                     <button class="btn btn-warning btn-sm editar" data-id="${data}"><i class="bi bi-pencil"></i></button>
-                    <button class="btn btn-danger btn-sm eliminar" data-id="${data}"><i class="bi bi-trash"></i></button>
                 `;
             }
         }

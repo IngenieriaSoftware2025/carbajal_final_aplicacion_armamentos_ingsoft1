@@ -104,7 +104,7 @@ function obtenerNombreMes(numeroMes) {
 }
 
 const buscarDatos = async () => {
-    const url = '/app_dgcm_carrito_copia/estadistica/obtenerDetalleEstadistica';
+    const url = '/carbajal_final_aplicacion_armamentos_ingsoft1/graficas/datos';
     const config = {
         method: 'GET'
     };

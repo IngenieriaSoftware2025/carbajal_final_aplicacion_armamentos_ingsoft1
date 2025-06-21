@@ -9,7 +9,7 @@
                 <h4 class="text-primary">Gestión de Asignaciones</h4>
             </div>
 
-            <div id="seccionFormulario">
+            <div id="seccionFormulario" class="d-none">
                 <form id="FormAsigPermisos">
                     <h4 class="mb-3 text-center text-primary" id="tituloFormulario">Registrar Asignación de Permiso</h4>
                     <input type="hidden" id="id_asig_permiso" name="id_asig_permiso">

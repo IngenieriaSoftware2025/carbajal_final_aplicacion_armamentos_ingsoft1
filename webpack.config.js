@@ -20,6 +20,7 @@ module.exports = {
     'js/arma/index': './src/js/arma/index.js',
     'js/tipo/index': './src/js/tipo/index.js',
     'js/graficas/index': './src/js/graficas/index.js',
+    'js/auditoria/dashboard': './src/js/auditoria/dashboard.js',
   },
   output: {
     filename: '[name].js',

@@ -127,49 +127,57 @@ class AsigPermisosController extends ActiveRecord
 
         AsigPermisos::buscarConRelacionMultiplesRespuesta(
             [
+                // JOIN usuarios (lo dejas igual)
                 [
-                    'tabla' => 'dgcm_usuarios',
-                    'alias' => 'u',
-                    'llave_local' => 'id_usuario',
+                    'tabla'         => 'dgcm_usuarios',
+                    'alias'         => 'u',
+                    'llave_local'   => 'id_usuario',
                     'llave_foranea' => 'id_usuario',
-                    'campos' => [
-                        'nombre_usuario' => 'nombre1',
+                    'campos'        => [
+                        'nombre_usuario'   => 'nombre1',
                         'apellido_usuario' => 'apellido1',
-                        'dpi_usuario' => 'dpi'
+                        'dpi_usuario'      => 'dpi'
                     ],
-                    'tipo' => 'INNER'
+                    'tipo'          => 'INNER'
                 ],
+
+                // <-- Aquí conviertes este JOIN en LEFT -->
                 [
-                    'tabla' => 'dgcm_permiso_aplicacion',
-                    'alias' => 'pa',
-                    'llave_local' => 'id_permiso_app',
+                    'tabla'         => 'dgcm_permiso_aplicacion',
+                    'alias'         => 'pa',
+                    'llave_local'   => 'id_permiso_app',
                     'llave_foranea' => 'id_permiso_app',
-                    'campos' => [],
-                    'tipo' => 'INNER'
+                    'campos'        => [],          // si quieres extraer campos de pa, los pones aquí
+                    'tipo'          => 'LEFT'       // <<-- ANTES era 'INNER'
                 ],
+
+                // y lo mismo si quieres dejar p y a como LEFT para mostrar aún sin permiso/aplicación
                 [
-                    'tabla' => 'dgcm_permisos',
-                    'alias' => 'p',
-                    'from' => 'pa',
-                    'llave_local' => 'id_permiso',
+                    'tabla'         => 'dgcm_permisos',
+                    'alias'         => 'p',
+                    'from'          => 'pa',
+                    'llave_local'   => 'id_permiso',
                     'llave_foranea' => 'id_permiso',
-                    'campos' => [
-                        'permiso' => 'nombre_permiso',
-                        'descripcion_permiso' => 'descripcion'
+                    'campos'        => [
+                        'permiso'              => 'nombre_permiso',
+                        'descripcion_permiso'  => 'descripcion'
                     ],
-                    'tipo' => 'INNER'
+                    'tipo'          => 'LEFT'
                 ],
+
                 [
-                    'tabla' => 'dgcm_permisos',
-                    'alias' => 'a',
-                    'from' => 'pa',
-                    'llave_local' => 'id_app',
+                    // ojo, aquí había un copy-paste de 'dgcm_permisos', 
+                    // este JOIN debería ser contra 'dgcm_aplicacion'
+                    'tabla'         => 'dgcm_aplicacion',
+                    'alias'         => 'ap',
+                    'from'          => 'pa',
+                    'llave_local'   => 'id_app',
                     'llave_foranea' => 'id_app',
-                    'campos' => [
+                    'campos'        => [
                         'nombre_aplicacion' => 'nombre_app_md'
                     ],
-                    'tipo' => 'INNER'
-                ]
+                    'tipo'          => 'LEFT'
+                ],
             ],
             "dgcm_asig_permisos.situacion = 1",
             "dgcm_asig_permisos.fecha_creacion DESC"

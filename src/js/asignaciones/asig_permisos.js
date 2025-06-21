@@ -287,25 +287,26 @@ const limpiarFormulario = () => {
     inputs.forEach(input => input.classList.remove('is-valid', 'is-invalid'));
 };
 
-// Eventos
-FormAsigPermisos.addEventListener('submit', guardaAsignacion);
-BtnModificar.addEventListener('click', modificaAsignacion);
-BtnLimpiar.addEventListener('click', limpiarFormulario);
-BtnVerAsignaciones.addEventListener('click', mostrarTabla);
-BtnCrearAsignacion.addEventListener('click', async () => {
-    await cargarUsuarios();
-    await cargarPermisos();
-    limpiarFormulario();
-    mostrarFormulario();
-});
-BtnActualizarTabla.addEventListener('click', buscaAsignaciones);
-tablaAsignaciones.on('click', '.modificar', llenarFormulario);
-tablaAsignaciones.on('click', '.eliminar', eliminaAsignacion);
-
-// Inicialización
 document.addEventListener('DOMContentLoaded', async () => {
     await cargarUsuarios();
     await cargarPermisos();
     limpiarFormulario();
-    mostrarFormulario();
+    mostrarTabla();  // carga la tabla al inicio
+
+    // listeners de botones
+    BtnVerAsignaciones.addEventListener('click', mostrarTabla);
+    BtnCrearAsignacion.addEventListener('click', async () => {
+        await cargarUsuarios();
+        await cargarPermisos();
+        limpiarFormulario();
+        mostrarFormulario();
+    });
+    BtnActualizarTabla.addEventListener('click', buscaAsignaciones);
+    BtnLimpiar.addEventListener('click', limpiarFormulario);
+
+    FormAsigPermisos.addEventListener('submit', guardaAsignacion);
+    BtnModificar.addEventListener('click', modificaAsignacion);
+
+    tablaAsignaciones.on('click', '.modificar', llenarFormulario);
+    tablaAsignaciones.on('click', '.eliminar', eliminaAsignacion);
 });

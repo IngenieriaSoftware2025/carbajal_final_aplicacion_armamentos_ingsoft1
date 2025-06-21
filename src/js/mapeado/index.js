@@ -12,11 +12,17 @@ let map;
 // Coordenadas de Guatemala 
 const guatemalaCenter = [14.576163, -90.533786];
 
+const pingIcon = L.divIcon({
+    className: '',
+    html: `<span class="ping-marker"></span>`,
+    iconSize: [12, 12],
+    iconAnchor: [6, 6]
+});
+
 const inicializarMapa = () => {
     try {
         map = L.map('mapaGuatemala').setView(guatemalaCenter, 7);
 
-        // Agregar capa de OpenStreetMap
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors',
             maxZoom: 18,
@@ -29,8 +35,11 @@ const inicializarMapa = () => {
         ];
         map.setMaxBounds(guatemalaBounds);
 
-        const marker = L.marker(guatemalaCenter).addTo(map);
-        marker.bindPopup('<b>Almacen</b>').openPopup();
+        L.marker(guatemalaCenter, { icon: pingIcon })
+            .addTo(map)
+            .bindPopup('<b>Almacen</b>')
+            .openPopup();
+
 
 
         console.log('Mapa de Guatemala cargado correctamente');

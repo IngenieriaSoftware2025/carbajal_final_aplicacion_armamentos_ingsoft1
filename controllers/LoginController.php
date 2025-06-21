@@ -29,14 +29,43 @@ class LoginController extends ActiveRecord
             $usuario = ActiveRecord::fetchArray($queryUsuario)[0];
 
             if ($usuario) {
+
+                $queryHistorial = "UPDATE dgcm_historial_sesiones 
+                SET fecha_fin = CURRENT YEAR TO SECOND,
+                    estado = 'CERRADA',
+                    motivo_cierre = 'NUEVA_SESION',
+                    duracion_minutos = (CURRENT YEAR TO SECOND - fecha_inicio) UNITS MINUTE
+                WHERE id_usuario = {$usuario['id_usuario']} 
+                AND estado = 'ACTIVA'";
+                ActiveRecord::SQL($queryHistorial);
+
                 $passDB = $usuario['usuario_clave'];
 
                 if (password_verify($clave, $passDB)) {
                     session_start();
 
                     $nombreUsuario = $usuario['nombre1'] . ' ' . $usuario['apellido1'];
+
                     $_SESSION['user'] = $nombreUsuario;
                     $_SESSION['id_usuario'] = $usuario['id_usuario'];
+
+
+                    $queryLimpiar = "DELETE FROM dgcm_contexto_sesion WHERE id_usuario = {$usuario['id_usuario']}";
+                    ActiveRecord::SQL($queryLimpiar);
+
+                    $sesionId = session_id();
+                    $ipUsuario = $_SERVER['REMOTE_ADDR'] ?? 'Desconocida';
+
+                    $queryContexto = "INSERT INTO dgcm_contexto_sesion (sesion_id, id_usuario, ip_origen) 
+                    VALUES ('$sesionId', {$usuario['id_usuario']}, '$ipUsuario')";
+                    ActiveRecord::SQL($queryContexto);
+
+                    $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? 'Desconocido';
+                    $queryNuevoHistorial = "INSERT INTO dgcm_historial_sesiones 
+                        (id_usuario, sesion_id, ip_origen, user_agent) 
+                        VALUES ({$usuario['id_usuario']}, '$sesionId', '$ipUsuario', '$userAgent')";
+                    ActiveRecord::SQL($queryNuevoHistorial);
+
                     $_SESSION['login'] = true;
 
                     // Obtener permisos corregido según tu esquema
@@ -78,8 +107,22 @@ class LoginController extends ActiveRecord
     public static function logout()
     {
         session_start();
+        if (isset($_SESSION['id_usuario'])) {
+            $queryHistorialLogout = "UPDATE dgcm_historial_sesiones 
+            SET fecha_fin = CURRENT YEAR TO SECOND,
+                estado = 'CERRADA',
+                motivo_cierre = 'LOGOUT',
+                duracion_minutos = (CURRENT YEAR TO SECOND - fecha_inicio) UNITS MINUTE
+            WHERE id_usuario = {$_SESSION['id_usuario']} 
+            AND estado = 'ACTIVA'";
+            ActiveRecord::SQL($queryHistorialLogout);
+
+            $queryLimpiarContexto = "DELETE FROM dgcm_contexto_sesion WHERE id_usuario = {$_SESSION['id_usuario']}";
+            ActiveRecord::SQL($queryLimpiarContexto);
+        }
         $_SESSION = [];
         session_destroy();
+
         header('Location: /carbajal_final_aplicacion_armamentos_ingsoft1/login');
         exit;
     }

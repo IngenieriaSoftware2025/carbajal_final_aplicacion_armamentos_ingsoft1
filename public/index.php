@@ -19,6 +19,7 @@ use Controllers\TipoArmaController;
 
 use Controllers\MapaController;
 use Controllers\GraficasController;
+use Controllers\AuditoriaController;
 
 $router = new Router();
 $router->setBaseURL('/' . $_ENV['APP_NAME']);
@@ -99,5 +100,9 @@ $router->get('/mapa', [MapaController::class, 'renderizarMapa']);
 $router->get('/graficas', [GraficasController::class, 'index']);
 $router->get('/graficas/datos', [GraficasController::class, 'obtenerDatosGraficas']);
 
+// Rutas para Auditoria
+// En tu router
+$router->get('/auditoria', [AuditoriaController::class, 'mostrarVista']);
+$router->get('/api/auditoria_dashboard', [AuditoriaController::class, 'dashboard']);
 // Comprueba y valida las rutas, que existan y les asigna las funciones del Controlador
 $router->comprobarRutas();

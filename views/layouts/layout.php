@@ -81,13 +81,12 @@ use Controllers\LoginController;
                             <span>Gestiones de sistema</span>
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="/carbajal_final_aplicacion_armamentos_ingsoft1/rutas">Rutas</a></li>
+
                             <?php if (LoginController::tienePermiso(ROL_ADMIN)) : // Solo Admin gestiona usuarios del sistema 
                             ?>
-                                <li><a class="dropdown-item" href="/carbajal_final_aplicacion_armamentos_ingsoft1/registro">Gestionar Usuarios Sistema</a></li>
-                                <li><a class="dropdown-item" href="/carbajal_final_aplicacion_armamentos_ingsoft1/historial">Ver Historial de rutas</a></li>
-                                <li><a class="dropdown-item" href="/carbajal_final_aplicacion_armamentos_ingsoft1/tipo_armas">Gestion tipo Armas</a></li>
-                                <li><a class="dropdown-item" href="/carbajal_final_aplicacion_armamentos_ingsoft1/armas">Gestion Armas</a></li>
+                                <li><a class="dropdown-item" href="/carbajal_final_aplicacion_armamentos_ingsoft1/registro">Usuarios Sistema</a></li>
+                                <li><a class="dropdown-item" href="/carbajal_final_aplicacion_armamentos_ingsoft1/tipo_armas">Tipos de Armas</a></li>
+                                <li><a class="dropdown-item" href="/carbajal_final_aplicacion_armamentos_ingsoft1/armas">Armas</a></li>
                             <?php endif; ?>
                         </ul>
                     </div>
@@ -113,13 +112,15 @@ use Controllers\LoginController;
                     <div class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
                             <i class="bi bi-gear"></i>
-                            <span>Configuración (Admin)</span>
+                            <span>Administrador</span>
                         </a>
                         <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="/carbajal_final_aplicacion_armamentos_ingsoft1/rutas">Rutas</a></li>
                             <li><a class="dropdown-item" href="/carbajal_final_aplicacion_armamentos_ingsoft1/permisos">Definir Permisos Base</a></li>
                             <li><a class="dropdown-item" href="/carbajal_final_aplicacion_armamentos_ingsoft1/aplicaciones">Aplicaciones</a></li>
                             <li><a class="dropdown-item" href="/carbajal_final_aplicacion_armamentos_ingsoft1/permiso_aplicacion">Permisos por Módulo</a></li>
                             <li><a class="dropdown-item" href="/carbajal_final_aplicacion_armamentos_ingsoft1/asignacion_permisos">Asignar Roles a Usuarios</a></li>
+                            <li><a class="dropdown-item" href="/carbajal_final_aplicacion_armamentos_ingsoft1/auditoria">Auditoría del Sistema</a></li>
                         </ul>
                     </div>
                 <?php endif; ?>

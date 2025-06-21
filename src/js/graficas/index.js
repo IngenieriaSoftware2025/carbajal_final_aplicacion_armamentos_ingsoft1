@@ -1,222 +1,119 @@
+// build/js/graficas/index.js
 import { Dropdown } from "bootstrap";
 import Chart from "chart.js/auto";
 import Swal from "sweetalert2";
-import { validarFormulario } from '../funciones';
-import DataTable from "datatables.net-bs5";
-import { lenguaje } from "../lenguaje";
-import { data } from "jquery";
 
-const miGrafico1 = document.getElementById('miGrafico1').getContext('2d');
-const miGrafico2 = document.getElementById('miGrafico2').getContext('2d');
-const miGrafico3 = document.getElementById('miGrafico3').getContext('2d');
-const miGrafico4 = document.getElementById('miGrafico4').getContext('2d');
+console.log("Cargando gráficas...");
 
-// Gráfico 1 - Productos más vendidos (Barras)
-window.funcionGrafico1 = new Chart(miGrafico1, {
+// Contextos de los tres canvas
+const ctx1 = document.getElementById('miGrafico1').getContext('2d');
+const ctx2 = document.getElementById('miGrafico2').getContext('2d');
+const ctx3 = document.getElementById('miGrafico3').getContext('2d');
+
+// Inicializamos los tres Chart.js vacíos
+window.funcionGrafico1 = new Chart(ctx1, {
     type: 'bar',
-    data: {
-        labels: [],
-        datasets: []
-    },
+    data: { labels: [], datasets: [] },
     options: {
         responsive: true,
-        scales: {
-            y: {
-                beginAtZero: true
-            }
-        }
+        scales: { y: { beginAtZero: true } }
     }
 });
-
-// Gráfico 2 - Distribución de productos (Pie)
-window.funcionGrafico2 = new Chart(miGrafico2, {
+window.funcionGrafico2 = new Chart(ctx2, {
     type: 'pie',
-    data: {
-        labels: [],
-        datasets: []
-    },
-    options: {
-        responsive: true
-    }
+    data: { labels: [], datasets: [] },
+    options: { responsive: true }
 });
-
-// Gráfico 3 - Ventas por fecha (Línea)
-window.funcionGrafico3 = new Chart(miGrafico3, {
+window.funcionGrafico3 = new Chart(ctx3, {
     type: 'line',
-    data: {
-        labels: [],
-        datasets: []
-    },
+    data: { labels: [], datasets: [] },
     options: {
         responsive: true,
-        scales: {
-            y: {
-                beginAtZero: true
-            }
-        }
+        scales: { y: { beginAtZero: true } }
     }
 });
 
-// Gráfico 4 - Ventas por mes (Barras)
-window.funcionGrafico4 = new Chart(miGrafico4, {
-    type: 'bar',
-    data: {
-        labels: [],
-        datasets: []
-    },
-    options: {
-        responsive: true,
-        scales: {
-            y: {
-                beginAtZero: true
-            }
-        }
-    }
-});
-
-
-function getColorForEstado(cantidad) {
-    let color = ""
-
-    if (cantidad > 15) {
-        color = "green"
-    } else if (cantidad >= 15 && cantidad <= 15) {
-        color = 'yellow'
-    } else if (cantidad >= 13 && cantidad < 15) {
-        color = 'orange'
-    } else if (cantidad == 13) {
-        color = 'red'
-    } else {
-        color = 'gray'
-    }
-
-    return color;
+// Helpers
+function getColorForEstado(c) {
+    if (c > 15) return 'green';
+    if (c === 15) return 'yellow';
+    if (c >= 13) return 'orange';
+    if (c === 13) return 'red';
+    return 'gray';
+}
+function formatearFecha(fechaStr) {
+    const d = new Date(fechaStr);
+    return d.toLocaleDateString('es-GT', { month: 'short', day: 'numeric' });
 }
 
-function obtenerNombreMes(numeroMes) {
-    const meses = [
-        'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-        'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-    ];
-    return meses[numeroMes - 1];
-}
-
-const buscarDatos = async () => {
-    const url = '/carbajal_final_aplicacion_armamentos_ingsoft1/graficas/datos';
-    const config = {
-        method: 'GET'
-    };
-
+// Carga los datos y pinta las gráficas
+async function buscarDatos() {
     try {
-        const respuesta = await fetch(url, config);
-        const datos = await respuesta.json();
+        const resp = await fetch('/carbajal_final_aplicacion_armamentos_ingsoft1/graficas/datos');
+        const json = await resp.json();
 
-        const { codigo, mensaje, data, dataFechas, dataMeses, dataClientes } = datos;
+        // console.log('Datos completos de /graficas/datos:', json);
+        // document.getElementById('muestraResumen').innerHTML =
+        //     `<pre style="font-size:0.8em;">${JSON.stringify(json, null, 2)}</pre>`;
 
-        if (codigo === 1) {
-
-            // GRÁFICO 1 - Productos más vendidos (Barras)
-            const { armasPorTipo, armasPorEstado, actividadReciente } = data;
-
-            if (window.funcionGrafico1 && armasPorTipo) {
-                const etiquetasTipos = armasPorTipo.map(d => d.nombre_tipo);
-                const cantidadesTipos = armasPorTipo.map(d => parseInt(d.total_cantidad));
-                window.funcionGrafico1.data.labels = etiquetasTipos;
-
-                window.funcionGrafico1.data.datasets = [{
-                    label: 'Cantidad de Armas',
-                    data: cantidadesTipos,
-                    backgroundColor: cantidadesTipos.map(cantidad => getColorForEstado(cantidad)),
-                    borderColor: cantidadesTipos.map(cantidad => getColorForEstado(cantidad)),
-                    borderWidth: 1
-
-                }];
-                window.funcionGrafico1.update();
-            }
-
-            // GRÁFICO 2 - Distribución de productos (Pie)
-            const coloresPie = [
-                '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
-                '#FF9F40', '#FF6384', '#C9CBCF', '#4BC0C0', '#FF6384'
-            ];
-
-            if (window.funcionGrafico2 && armasPorEstado) {
-                const etiquetasEstados = armasPorEstado.map(d => d.estado);
-                const cantidadesEstados = armasPorEstado.map(d => parseInt(d.total_cantidad));
-
-                window.funcionGrafico2.data = {
-                    labels: etiquetasEstados,
-                    datasets: [{
-                        label: 'Distribución por Estado',
-                        data: cantidadesEstados,
-                        backgroundColor: coloresPie.slice(0, etiquetasEstados.length)
-                    }]
-                };
-                window.funcionGrafico2.update();
-            }
-
-            // GRÁFICO 3 - Ventas por fecha (Línea)
-            if (window.funcionGrafico3 && actividadReciente) {
-                const fechas = actividadReciente.map(d => {
-                    const fecha = new Date(d.fecha);
-                    return fecha.toLocaleDateString('es-GT', {
-                        month: 'short',
-                        day: 'numeric'
-                    });
-                });
-
-                const cantidadesAcciones = actividadReciente.map(d => parseInt(d.total_acciones));
-
-                window.funcionGrafico3.data.labels = fechas;
-                window.funcionGrafico3.data.datasets = [
-                    {
-                        label: 'del Sistema',
-                        data: cantidadesAcciones,
-                        borderColor: 'rgb(75, 192, 192)',
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        tension: 0.4
-                    }
-                ];
-
-                window.funcionGrafico3.update();
-            }
-
-            // GRÁFICO 4 - Ventas por mes (Barras)
-            if (window.funcionGrafico4 && armasPorEstado) {
-                const etiquetasEstados = armasPorEstado.map(d => d.estado);
-                const cantidadesEstados = armasPorEstado.map(d => parseInt(d.total_cantidad));
-
-                window.funcionGrafico4.data.labels = etiquetasEstados;
-                window.funcionGrafico4.data.datasets = [
-                    {
-                        label: 'Cantidad por Estado',
-                        data: cantidadesEstados,
-                        backgroundColor: '#36A2EB',
-                        borderColor: '#36A2EB',
-                        borderWidth: 1
-                    }
-                ];
-
-                window.funcionGrafico4.update();
-            }
-
-        } else {
-            console.error('Error del servidor:', mensaje);
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: mensaje
-            });
+        if (json.codigo !== 1) {
+            return Swal.fire('Error', json.mensaje, 'error');
         }
 
-    } catch (error) {
-        console.log('Error al buscar datos:', error);
-        Swal.fire({
-            icon: 'error',
-            title: 'Error de conexión',
-            text: 'No se pudieron cargar los datos'
-        });
+        const { armasPorTipo, historialPorUsuario, actividadReciente } = json.data;
+
+        // Gráfico 1: Tipo Armamento
+        if (armasPorTipo) {
+            const labels = armasPorTipo.map(d => d.nombre_tipo);
+            const data = armasPorTipo.map(d => +d.total_cantidad);
+            funcionGrafico1.data.labels = labels;
+            funcionGrafico1.data.datasets = [{
+                label: 'Cantidad de Armas',
+                data,
+                backgroundColor: data.map(getColorForEstado),
+                borderColor: data.map(getColorForEstado),
+                borderWidth: 1
+            }];
+            funcionGrafico1.update();
+        }
+
+        // Gráfico 2: Historial de Usuarios
+        if (historialPorUsuario) {
+            const labels = historialPorUsuario.map(d => d.usuario);
+            const data = historialPorUsuario.map(d => +d.total_acciones);
+            const colors = labels.map((_, i) =>
+                `hsl(${(i * 360 / labels.length).toFixed(0)},70%,60%)`
+            );
+            funcionGrafico2.data = {
+                labels,
+                datasets: [{
+                    label: 'Acciones por Usuario',
+                    data,
+                    backgroundColor: colors
+                }]
+            };
+            funcionGrafico2.update();
+        }
+
+        // Gráfico 3: Cantidad de Armas (línea)
+        if (actividadReciente) {
+            const labels = actividadReciente.map(d => formatearFecha(d.fecha));
+            const data = actividadReciente.map(d => +d.total_acciones);
+            funcionGrafico3.data.labels = labels;
+            funcionGrafico3.data.datasets = [{
+                label: 'Acciones en 30 días',
+                data,
+                borderColor: 'rgb(75,192,192)',
+                backgroundColor: 'rgba(75,192,192,0.2)',
+                tension: 0.4
+            }];
+            funcionGrafico3.update();
+        }
+
+    } catch (err) {
+        console.error(err);
+        Swal.fire('Error de conexión', 'No se pudieron cargar los datos', 'error');
     }
 }
 
-buscarDatos();
+document.addEventListener('DOMContentLoaded', buscarDatos);
